@@ -27,9 +27,12 @@ app.post('/todos', (req, res) => {
 
 // resource reading: GET /todos
 
+
 app.listen(3000, () => {
   console.log('Started on port 3000');
 });
+
+module.exports = {app};
 
 // CRUD operations:
   // - create
