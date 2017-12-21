@@ -17,7 +17,7 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-// resource creation
+// creating new todos
 app.post('/todos', (req, res) => {
   var todo = new Todo({
     text: req.body.text
@@ -31,7 +31,7 @@ app.post('/todos', (req, res) => {
 });
 
 
-// resource reading: GET /todos
+// reading all todos
 app.get('/todos', (req, res) => {
   Todo.find().then((todos) => {
     res.send({todos});
@@ -40,7 +40,7 @@ app.get('/todos', (req, res) => {
   });
 });
 
-// GET /todos/id
+// reading specific todos by id
 app.get('/todos/:id', (req, res) => {
   var id = req.params.id;
 
@@ -59,6 +59,7 @@ app.get('/todos/:id', (req, res) => {
   });
 });
 
+// deleting specific todos by id
 app.delete('/todos/:id', (req, res) => {
   var id = req.params.id;
 
@@ -77,6 +78,7 @@ app.delete('/todos/:id', (req, res) => {
   });
 });
 
+// updating specific todos by id
 app.patch('/todos/:id', (req, res) => {
   var id = req.params.id;
   var body = _.pick(req.body, ['text', 'completed']);
@@ -100,6 +102,24 @@ app.patch('/todos/:id', (req, res) => {
     res.send({todo});
   }).catch((e) => {
     res.status(400).send();
+  });
+});
+
+// creating new users
+app.post('/users', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+  var user = new User(body);
+
+  // User.findByToken - a model method, a method applied to a model
+  // user.generateAuthToken - an instance method, a method applied to an instance (thus it requires the document).
+
+  user.save().then(() => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    // x- creates a custom header in this case = 'auth'
+    res.header('x-auth', token).send(user);
+  }).catch((e) => {
+    res.status(400).send(e);
   });
 });
 
