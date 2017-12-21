@@ -10,6 +10,7 @@ const {ObjectID} = require('mongodb');
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
+const {authenticate} = require('./middleware/authenticate')
 
 var app = express();
 
@@ -105,7 +106,7 @@ app.patch('/todos/:id', (req, res) => {
   });
 });
 
-// creating new users
+// PUBLIC ROUTE: SIGN UP: creating new users
 app.post('/users', (req, res) => {
   var body = _.pick(req.body, ['email', 'password']);
   var user = new User(body);
@@ -121,6 +122,13 @@ app.post('/users', (req, res) => {
   }).catch((e) => {
     res.status(400).send(e);
   });
+});
+
+
+
+
+app.get('/users/me', authenticate, (req, res, next) => {
+  res.send(req.user);
 });
 
 

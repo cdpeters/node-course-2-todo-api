@@ -40,7 +40,7 @@ UserSchema.methods.toJSON = function () {
   return _.pick(userObject, ['_id', 'email']);
 };
 
-// instance methods. Here a function definition (not an arrow function) is used because we need a bound this keyword
+// instance methods. Here a function definition (not an arrow function) is used because we need a bound this keyword. For instance methods, the this keyword is bound to the document i.e. user in this case.
 UserSchema.methods.generateAuthToken = function () {
   var user = this;
   var access = 'auth';
@@ -51,6 +51,24 @@ UserSchema.methods.generateAuthToken = function () {
   // the second return statement (on user.save()) creates a promise that can be chained onto in the server.js file with a then() call.
   return user.save().then(() => {
     return token;
+  });
+};
+
+// .statics is an object where anything added on to it becomes a model method. For model methods, the this keyword is bound to the calling model.
+UserSchema.statics.findByToken = function (token) {
+  var User = this;
+  var decoded;
+
+  try {
+    decoded = jwt.verify(token, 'abc123');
+  } catch (e) {
+    return Promise.reject();
+  }
+  // quotes are required when there is a dot (.) in the property
+  return User.findOne({
+    '_id': decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
   });
 };
 
