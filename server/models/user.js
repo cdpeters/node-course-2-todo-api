@@ -57,6 +57,16 @@ UserSchema.methods.generateAuthToken = function () {
   });
 };
 
+UserSchema.methods.removeToken = function (token) {
+  var user = this;
+
+  return user.update({
+    $pull: {
+      tokens: {token}
+    }
+  });
+};
+
 // .statics is an object where anything added on to it becomes a model method. For model methods, the this keyword is bound to the calling model.
 UserSchema.statics.findByToken = function (token) {
   var User = this;
