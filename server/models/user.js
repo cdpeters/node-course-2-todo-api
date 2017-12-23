@@ -47,7 +47,7 @@ UserSchema.methods.toJSON = function () {
 UserSchema.methods.generateAuthToken = function () {
   var user = this;
   var access = 'auth';
-  var token = jwt.sign({ _id: user._id.toHexString(), access}, 'abc123').toString();
+  var token = jwt.sign({ _id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString();
 
   user.tokens.push({access, token});
 
@@ -75,7 +75,7 @@ UserSchema.statics.findByToken = function (token) {
   // any errors in the throw block will stop execution of that block and pass the error to the catch block.
   try {
     // returns the payload of a JWT (JSON Web Token) which includes
-    decoded = jwt.verify(token, 'abc123');
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (e) {
     return Promise.reject();
   }
