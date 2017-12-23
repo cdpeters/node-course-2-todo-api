@@ -117,16 +117,14 @@ app.post('/users', (req, res) => {
   user.save().then(() => {
     return user.generateAuthToken();
   }).then((token) => {
-    // x- creates a custom header in this case = 'auth'
+    // x- creates a custom header in this case = 'auth' that we can access for requests along private routes using req.header('x-auth')
     res.header('x-auth', token).send(user);
   }).catch((e) => {
     res.status(400).send(e);
   });
 });
 
-
-
-
+// returns the user information: _id and email. This is a private route because of the authenticate middleware.
 app.get('/users/me', authenticate, (req, res, next) => {
   res.send(req.user);
 });

@@ -34,8 +34,10 @@ var UserSchema = new mongoose.Schema({
   }]
 }, {usePushEach: true});
 
+// .toJSON() is called internally by JSON.stringify() which is called internally by res.send(). Here we customize toJSON() so that during the conversion to a JSON string, only specific key-value pairs are output to the response that gets sent to the client.
 UserSchema.methods.toJSON = function () {
   var user = this;
+  // .toObject() takes the mongoose user object (the one that also has a __v property) and creates an object that only has the properties from the model (and the _id that was created during the save).
   var userObject = user.toObject();
 
   return _.pick(userObject, ['_id', 'email']);
@@ -60,20 +62,22 @@ UserSchema.statics.findByToken = function (token) {
   var User = this;
   var decoded;
 
+  // any errors in the throw block will stop execution of that block and pass the error to the catch block.
   try {
+    // returns the payload of a JWT (JSON Web Token) which includes
     decoded = jwt.verify(token, 'abc123');
   } catch (e) {
     return Promise.reject();
   }
-  // quotes are required when there is a dot (.) in the property
+  // quotes are required when there is a dot (.) in the property. The quotes on _id is just used for a consistent look but are not actually required.
   return User.findOne({
     '_id': decoded._id,
     'tokens.token': token,
-    'tokens.access': 'auth'
+    'tokens.access': decoded.access
   });
 };
 
-// Middleware - predefined by mongoose.
+// Middleware - .pre() is predefined by mongoose as middleware that occurs before the action in the first argument, in this case a 'save' action. Bcrypt is used specifically for encrypting (hashing and salting) passwords
 UserSchema.pre('save', function (next) {
   var user = this;
 
