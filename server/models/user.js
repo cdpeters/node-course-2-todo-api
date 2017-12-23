@@ -77,6 +77,26 @@ UserSchema.statics.findByToken = function (token) {
   });
 };
 
+UserSchema.statics.findByCredentials = function (email, password) {
+  var User = this;
+
+  return User.findOne({email}).then((user) => {
+    if (!user) {
+      return Promise.reject();
+    }
+
+    return new Promise((resolve, reject) => {
+      bcrypt.compare(password, user.password, (err, res) =>{
+        if (res) {
+          resolve(user);
+        } else {
+          reject();
+        }
+      });
+    });
+  });
+};
+
 // Middleware - .pre() is predefined by mongoose as middleware that occurs before the action in the first argument, in this case a 'save' action. Bcrypt is used specifically for encrypting (hashing and salting) passwords
 UserSchema.pre('save', function (next) {
   var user = this;
