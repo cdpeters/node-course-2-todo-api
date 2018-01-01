@@ -10,7 +10,7 @@ const {ObjectID} = require('mongodb');
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
-const {authenticate} = require('./middleware/authenticate')
+const {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 
